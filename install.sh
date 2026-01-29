@@ -178,13 +178,28 @@ log_success "Image pulled successfully!"
 
 # Onboarding
 if [ "$SKIP_ONBOARD" = false ]; then
+    log_step "Initializing Moltbot configuration..."
+    echo -e "${YELLOW}Setting up configuration and workspace...${NC}\n"
+    
+    # Run setup to initialize config and workspace
+    if ! $COMPOSE_CMD run --rm moltbot-cli setup; then
+        log_error "Setup failed"
+        echo -e "${RED}Failed to initialize configuration. Please check Docker logs.${NC}"
+        exit 1
+    fi
+    log_success "Configuration initialized"
+    
     log_step "Running onboarding wizard..."
     echo -e "${YELLOW}This will configure your AI provider and channels.${NC}"
     echo -e "${YELLOW}Follow the prompts to complete setup.${NC}\n"
     
-    $COMPOSE_CMD run --rm moltbot-cli setup && $COMPOSE_CMD run --rm moltbot-cli onboard
-    
-    log_success "Onboarding complete!"
+    # Run onboarding
+    if ! $COMPOSE_CMD run --rm moltbot-cli onboard; then
+        log_warning "Onboarding wizard was skipped or failed"
+        echo -e "${YELLOW}You can run it later with:${NC} cd $INSTALL_DIR && $COMPOSE_CMD run --rm moltbot-cli onboard"
+    else
+        log_success "Onboarding complete!"
+    fi
 fi
 
 # Start gateway
