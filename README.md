@@ -17,9 +17,10 @@ After spending 12 hours debugging the core environment, fighting `EACCES` permis
 
 This open-source Docker implementation is step one. OpenClaw's autonomous framework is currently being integrated directly into the core **Lacesse Ecosystem**. 
 
-* **Fikra API (Powered by Fikra-35M):** We are launching a high-speed, low-cost API specifically optimized for agentic workflows, priced aggressively at KES 350 per 1M tokens to solve the high compute costs of autonomous AI.
+* **Fikra API (Powered by Fikra-7B-Instruct):** We are launching a high-speed, low-cost API specifically optimized for agentic workflows, priced aggressively at KES 350 per 1M tokens to solve the high compute costs of autonomous AI.
 * **Lacesse One-Click Deployment:** Don't have the 8GB of free RAM to run this locally? We are building a fully hosted, persistent cloud environment for developers and agencies. 
-* **Lacesse Biashara:** Allowing business owners to automate customer support, social media, and site management entirely via agentic workflows. 
+* **Lacesse Biashara:** Allowing business owners to automate customer support, social media, and site management entirely via agentic workflows.
+* **Homepage:** Visit https://lacesse.co.ke to find out more.
 
 *(Stay tuned for the official launch of these features. For now, enjoy the free, stabilized local deployment below!)*
 
@@ -36,20 +37,20 @@ This open-source Docker implementation is step one. OpenClaw's autonomous framew
 **Linux / macOS**
 Open your terminal and run:
 ```bash
-bash <(curl -fsSL [https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/install.sh](https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/install.sh))
+bash <(curl -fsSL https://raw.githubusercontent.com/dawn-pixellate/openclaw-dockermain/install.sh)
 ```
 
 **Windows (PowerShell)**
 Ensure Docker Desktop is running, open PowerShell as Administrator, and run:
 ```powershell
-irm [https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1](https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1) | iex
+irm https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/install.ps1 | iex
 ```
 *(Note: Windows users can also use WSL2 and run the Linux command).*
 
 ### Option 2: Manual Install (Docker Compose)
 If you prefer to see exactly what is running:
 ```bash
-git clone [https://github.com/dawn-pixellate/openclaw-docker.git](https://github.com/dawn-pixellate/openclaw-docker.git)
+git clone https://github.com/dawn-pixellate/openclaw-docker.git
 cd openclaw-docker
 
 # Run the onboarding wizard
@@ -93,12 +94,12 @@ Replace the `models` and `agents` blocks with this exact structure:
     "mode": "merge",
     "providers": {
       "custom-api": {
-        "baseUrl": "[https://api.groq.com/openai/v1](https://api.groq.com/openai/v1)",
+        "baseUrl": "https://api.groq.com/openai/v1",
         "apiKey": "YOUR_GROQ_OR_CUSTOM_API_KEY",
         "api": "openai-completions",
         "models": [
           {
-            "id": "llama-3.3-70b-versatile",
+            "id": "llama-3.1-8b-instant",
             "name": "custom-model",
             "reasoning": false,
             "input": ["text"],
@@ -111,7 +112,7 @@ Replace the `models` and `agents` blocks with this exact structure:
   "agents": {
     "defaults": {
       "model": {
-        "primary": "custom-api/llama-3.3-70b-versatile"
+        "primary": "custom-api/llama-3.1-8b-instant"
       }
     }
   }
@@ -171,7 +172,7 @@ If you need to wipe the environment and start over:
 
 **Linux / macOS:**
 ```bash
-bash <(curl -fsSL [https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/uninstall.sh](https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/uninstall.sh))
+bash <(curl -fsSL https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/uninstall.sh)
 ```
 *(Add `--keep-data` to preserve your config files).*
 
