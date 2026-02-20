@@ -1,3 +1,4 @@
+<img src="https://Lacessebc1.s3.eu-central-003.backblazeb2.com/media/blog_uploads/2026/02/lacesse-openclaw.jpg" alt="A dark-mode terminal window showing a successful Docker deployment of OpenClaw alongside the Lacesse and Fikra API logos" class="rounded-xl shadow-lg w-full">
 # OpenClaw Docker: Stabilized, Sandboxed & Production-Ready
 
 A battle-tested, production-ready Docker environment for running [OpenClaw](https://github.com/openclaw/openclaw) autonomous agents securely.
