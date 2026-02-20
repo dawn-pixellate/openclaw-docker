@@ -1,304 +1,181 @@
-# OpenClaw (Clawbot) Docker Image
+# OpenClaw Docker: Stabilized, Sandboxed & Production-Ready
 
-Pre-built Docker image for [OpenClaw](https://github.com/openclaw/openclaw) — run your AI assistant in seconds without building from source.
+A battle-tested, production-ready Docker environment for running [OpenClaw](https://github.com/openclaw/openclaw) autonomous agents securely.
 
-> 🔄 **Always Up-to-Date:** This image automatically builds daily and checks for new OpenClaw releases every 6 hours, ensuring you always have the latest version.
+Running an experimental, autonomous AI with raw root access to your OS is a massive security risk. While containerizing it is the solution, the official OpenClaw repository currently suffers from severe instability regarding Docker deployments. 
 
-## One-Line Install (Recommended)
+After spending 12 hours debugging the core environment, fighting `EACCES` permission walls, and troubleshooting authentication loops, this repository (originally forked from [phioranex](https://github.com/phioranex/openclaw-docker)) has been fully stabilized and documented.
 
-### Linux / macOS
+**What this repository & guide fixes:**
+* **The Port 18789 Connection Reset:** Bypasses the internal container binding issue by utilizing a `socat` proxy, properly exposing the UI on port `18790`.
+* **LLM Provider Conflicts:** Provides the exact `.json` configuration needed to bypass default Gemini limits and route through custom endpoints (like Groq or Fikra).
+* **Native Tooling Errors:** Outlines the exact `.env` configurations required to give the agent web access without CLI conflicts.
 
+---
+
+## 🌍 Coming Soon: The Lacesse Ecosystem
+
+This open-source Docker implementation is step one. OpenClaw's autonomous framework is currently being integrated directly into the core **Lacesse Ecosystem**. 
+
+* **Fikra API (Powered by Fikra-35M):** We are launching a high-speed, low-cost API specifically optimized for agentic workflows, priced aggressively at KES 350 per 1M tokens to solve the high compute costs of autonomous AI.
+* **Lacesse One-Click Deployment:** Don't have the 8GB of free RAM to run this locally? We are building a fully hosted, persistent cloud environment for developers and agencies. 
+* **Lacesse Biashara:** Allowing business owners to automate customer support, social media, and site management entirely via agentic workflows. 
+
+*(Stay tuned for the official launch of these features. For now, enjoy the free, stabilized local deployment below!)*
+
+---
+
+## 🚀 Installation 
+
+**Prerequisites:**
+* Docker Desktop (Windows/macOS) or Docker Engine (Linux)
+* Minimum 8GB of free RAM
+
+### Option 1: One-Line Install (Recommended)
+
+**Linux / macOS**
+Open your terminal and run:
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.sh)
+bash <(curl -fsSL [https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/install.sh](https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/install.sh))
 ```
 
-### Windows (PowerShell)
-
+**Windows (PowerShell)**
+Ensure Docker Desktop is running, open PowerShell as Administrator, and run:
 ```powershell
-irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1 | iex
+irm [https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1](https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1) | iex
 ```
+*(Note: Windows users can also use WSL2 and run the Linux command).*
 
-> **Note for Windows users:** Make sure Docker Desktop is installed and running. You can also use WSL2 with the Linux installation command.
-
-This will:
-- ✅ Check prerequisites (Docker, Docker Compose)
-- ✅ Download necessary files
-- ✅ Pull the pre-built image
-- ✅ Run the onboarding wizard
-- ✅ Start the gateway
-
-### Install Options
-
-**Linux / macOS:**
-
-### Install Options
-
-**Linux / macOS:**
-
+### Option 2: Manual Install (Docker Compose)
+If you prefer to see exactly what is running:
 ```bash
-# Just pull the image (no setup)
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.sh) --pull-only
-
-# Skip onboarding (if already configured)
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.sh) --skip-onboard
-
-# Don't start gateway after setup
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.sh) --no-start
-
-# Custom install directory
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.sh) --install-dir /opt/openclaw
-```
-
-**Windows (PowerShell):**
-
-```powershell
-# Just pull the image (no setup)
-irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1 | iex -PullOnly
-
-# Skip onboarding (if already configured)
-irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1 | iex -SkipOnboard
-
-# Don't start gateway after setup
-irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1 | iex -NoStart
-
-# Custom install directory
-$env:TEMP_INSTALL_SCRIPT = irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.ps1; Invoke-Expression $env:TEMP_INSTALL_SCRIPT -InstallDir "C:\openclaw"
-```
-
-## Manual Install
-
-### Quick Start
-
-```bash
-# Pull the image
-docker pull ghcr.io/phioranex/openclaw-docker:latest
-
-# Run onboarding (first time setup)
-docker run -it --rm \
-  -v ~/.openclaw:/home/node/.openclaw \
-  -v ~/.openclaw/workspace:/home/node/.openclaw/workspace \
-  ghcr.io/phioranex/openclaw-docker:latest onboard
-
-# Start the gateway
-docker run -d \
-  --name openclaw \
-  --restart unless-stopped \
-  -v ~/.openclaw:/home/node/.openclaw \
-  -v ~/.openclaw/workspace:/home/node/.openclaw/workspace \
-  -p 18789:18789 \
-  ghcr.io/phioranex/openclaw-docker:latest gateway start --foreground
-```
-
-### Using Docker Compose
-
-```bash
-# Clone this repo
-git clone https://github.com/phioranex/openclaw-docker.git
+git clone [https://github.com/dawn-pixellate/openclaw-docker.git](https://github.com/dawn-pixellate/openclaw-docker.git)
 cd openclaw-docker
 
-# Run onboarding
+# Run the onboarding wizard
 docker compose run --rm openclaw-cli onboard
 
 # Start the gateway
 docker compose up -d openclaw-gateway
 ```
 
-## Configuration
+---
 
-During onboarding, you'll configure:
-- **AI Provider** (Anthropic Claude, OpenAI, etc.)
-- **Channels** (Telegram, WhatsApp, Discord, etc.)
-- **Gateway settings**
+## 🛠️ The Crucial Fixes (Read Before Use)
 
-Config is stored in `~/.openclaw/` and persists across container restarts.
+If you follow the standard OpenClaw documentation inside a Docker environment, things *will* break. Here is how to fix the three most common roadblocks.
 
-## Available Tags
+### 1. Accessing the Dashboard (Connection Reset Error)
+The internal gateway binds to `127.0.0.1:18789` *inside* the container. If you try to visit `http://localhost:18789` on your host machine, you will get a `Connection reset by peer` error. 
 
-| Tag | Description |
-|-----|-------------|
-| `latest` | Latest OpenClaw build (updated daily and on new releases) |
-| `vX.Y.Z` | Specific version (if available) |
-| `main` | Latest from main branch (cutting edge) |
+This repository uses a `socat` proxy to forward traffic to an accessible port. **You must use port 18790.**
 
-> **Note:** The `latest` tag is automatically rebuilt daily at 00:00 UTC and whenever OpenClaw releases a new version.
+**Step-by-step fix:**
+1. Get your pairing token by running this command:
+   ```bash
+   cat ~/.openclaw/openclaw.json | grep -i token
+   ```
+2. Open your browser and navigate to:
+   ```text
+   http://localhost:18790/?token=YOUR_TOKEN_HERE
+   ```
 
-## Volumes
+### 2. Configuring Custom LLMs (Groq / Fikra / OpenAI)
+OpenClaw's default CLI setup often fails to properly assign custom API keys, resulting in authentication errors. To force the gateway to use a custom provider (like Groq's high-speed LLaMA models), edit the config directly.
 
-| Path | Purpose |
-|------|---------|
-| `/home/node/.openclaw` | Config and session data |
-| `/home/node/.openclaw/workspace` | Agent workspace |
+```bash
+nano ~/.openclaw/openclaw.json
+```
+Replace the `models` and `agents` blocks with this exact structure:
 
-## Ports
+```json
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "custom-api": {
+        "baseUrl": "[https://api.groq.com/openai/v1](https://api.groq.com/openai/v1)",
+        "apiKey": "YOUR_GROQ_OR_CUSTOM_API_KEY",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "llama-3.3-70b-versatile",
+            "name": "custom-model",
+            "reasoning": false,
+            "input": ["text"],
+            "contextWindow": 128000
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "custom-api/llama-3.3-70b-versatile"
+      }
+    }
+  }
+```
+*Always restart the gateway after config changes:*
+```bash
+cd ~/openclaw && docker compose restart openclaw-gateway
+```
 
-| Port | Purpose |
-|------|---------|
-| `18789` | Gateway API + Dashboard |
+### 3. Enabling Web Search & Skills
+To make the agent truly useful, it needs access to the web. Running `openclaw configure` inside Docker often fails to save keys to the right environment. The most stable way to grant web access is via the `env.vars` block.
 
-## Links
+1. Get a free API key from [Brave Search](https://api.search.brave.com/).
+2. Edit your config file:
+   ```bash
+   nano ~/.openclaw/openclaw.json
+   ```
+3. Add the `env` block at the **very top** of the JSON file (right after the opening `{`):
+   ```json
+   "env": {
+     "vars": {
+       "BRAVE_API_KEY": "your_brave_api_key_here"
+     }
+   },
+   ```
+4. Restart the gateway. You can now simply tell your agent in chat: *"Search the web for the latest AI news."*
 
-- [OpenClaw Website](https://openclaw.ai/)
-- [OpenClaw Docs](https://docs.openclaw.ai)
-- [OpenClaw GitHub](https://github.com/openclaw/openclaw)
-- [Discord Community](https://discord.gg/clawd)
+---
 
-## Uninstallation
+## 🛑 Troubleshooting Commands
 
-### One-Line Uninstall
+If the container crashes or the AI isn't responding, use these commands to debug:
+
+**Check Gateway Logs (The ultimate source of truth):**
+```bash
+docker logs openclaw-gateway
+```
+
+**Restart the entire stack:**
+```bash
+cd ~/openclaw && docker compose down && docker compose up -d
+```
+
+**Fixing `EACCES: permission denied` (Common on Synology NAS):**
+If your container crashes immediately because the internal Node user (UID 1000) lacks host permissions:
+```bash
+sudo chown -R 1000:$(id -g) ~/.openclaw
+sudo chmod -R u+rwX,g+rwX,o-rwx ~/.openclaw
+```
+Alternatively, edit `docker-compose.yml` and uncomment the `user: "1000:1000"` line.
+
+---
+
+## 🗑️ Uninstallation
+
+If you need to wipe the environment and start over:
 
 **Linux / macOS:**
-
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.sh)
+bash <(curl -fsSL [https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/uninstall.sh](https://raw.githubusercontent.com/dawn-pixellate/openclaw-docker/main/uninstall.sh))
 ```
+*(Add `--keep-data` to preserve your config files).*
 
 **Windows (PowerShell):**
-
 ```powershell
-irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.ps1 | iex
+irm [https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.ps1](https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.ps1) | iex
 ```
-
-This will:
-- ✅ Stop and remove all containers
-- ✅ Ask before removing configuration and workspace data
-- ✅ Ask before removing Docker image
-- ✅ Ask before removing installation directory
-
-### Uninstall Options
-
-**Linux / macOS:**
-
-```bash
-# Keep configuration and workspace data
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.sh) --keep-data
-
-# Keep Docker image (useful if reinstalling later)
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.sh) --keep-image
-
-# Skip all confirmation prompts
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.sh) --force
-
-# Custom install directory
-bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.sh) --install-dir /opt/openclaw
-```
-
-**Windows (PowerShell):**
-
-```powershell
-# Keep configuration and workspace data
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.ps1))) -KeepData
-
-# Keep Docker image (useful if reinstalling later)
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.ps1))) -KeepImage
-
-# Skip all confirmation prompts
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.ps1))) -Force
-
-# Custom install directory
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/phioranex/openclaw-docker/main/uninstall.ps1))) -InstallDir "C:\openclaw"
-```
-
-### Manual Uninstall
-
-If you prefer to uninstall manually:
-
-```bash
-# Stop and remove containers
-docker stop openclaw-gateway openclaw-socat
-docker rm openclaw-gateway openclaw-socat openclaw-cli
-
-# Remove data (optional)
-rm -rf ~/.openclaw
-
-# Remove Docker image (optional)
-docker rmi ghcr.io/phioranex/openclaw-docker:latest
-
-# Remove installation directory (optional)
-rm -rf ~/openclaw
-```
-
-## Troubleshooting
-
-### Permission Issues on Synology NAS
-
-If you encounter `EACCES: permission denied` errors when running on Synology NAS:
-
-1. **Option 1: Run install script with sudo (Recommended)**
-   ```bash
-   sudo bash <(curl -fsSL https://raw.githubusercontent.com/phioranex/openclaw-docker/main/install.sh)
-   ```
-   The script will automatically:
-   - Set proper ownership (UID 1000) for the container user
-   - Configure your user account to access the files
-   - Update docker-compose.yml to use the correct home directory
-
-2. **Option 2: Fix permissions manually**
-   ```bash
-   # RECOMMENDED: Set ownership to UID 1000 with group access (most secure)
-   sudo chown -R 1000:$(id -g) ~/.openclaw
-   sudo chmod -R u+rwX,g+rwX,o-rwx ~/.openclaw
-   
-   # Alternative: Make directory writable by owner and group (less secure)
-   chmod -R 775 ~/.openclaw
-   
-   # LAST RESORT ONLY: World-writable (least secure, use only if above options fail)
-   # chmod -R 777 ~/.openclaw
-   ```
-
-3. **Option 3: Use host user mapping**
-   Edit `docker-compose.yml` and uncomment the `user: "1000:1000"` line in both services:
-   ```yaml
-   user: "1000:1000"  # Uncomment this line
-   ```
-
-### Telegram Bot Connection Issues
-
-If the Telegram bot cannot find your username or numeric ID:
-
-1. Ensure your container has internet access:
-   ```bash
-   docker exec openclaw-gateway ping -c 3 api.telegram.org
-   ```
-
-2. Check if firewall or network restrictions are blocking Telegram API access
-
-3. Verify your Telegram bot token is correct in `~/.openclaw/openclaw.json`
-
-### Docker Permission Issues (Image Pull)
-
-If you need root/sudo to pull Docker images:
-
-1. Add your user to the docker group:
-   ```bash
-   sudo usermod -aG docker $USER
-   ```
-
-2. Log out and log back in for the changes to take effect
-
-3. Alternatively, use `sudo` when running the install script
-
-### Installing Skills (npm global packages)
-
-The container is configured to allow the `node` user to install global npm packages without permission issues. You can install skills using:
-
-```bash
-# If using docker compose
-docker compose exec openclaw-gateway npm install -g @package/name
-
-# If using standalone container
-docker exec -it <container_name> npm install -g @package/name
-
-# Find your container name with:
-docker ps
-```
-
-If you're using `user: "1000:1000"` in docker-compose.yml, global npm installs will work without any additional configuration.
-
-## YouTube Tutorial
-
-📺 Watch the installation tutorial: [Coming Soon]
-
-## License
-
-This Docker packaging is provided by [Phioranex](https://phioranex.com).
-OpenClaw itself is licensed under MIT — see the [original repo](https://github.com/openclaw/openclaw).
